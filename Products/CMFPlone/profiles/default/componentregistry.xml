@@ -71,5 +71,7 @@
   <utility
      interface="zope.ramcache.interfaces.ram.IRAMCache"
      factory="zope.ramcache.ram.RAMCache"/>
+  <utility interface="zope.intid.IIntIds"
+     factory="zope.intid.IntIds"/>
  </utilities>
 </componentregistry>

@@ -24,6 +24,7 @@ from Products.CMFCore.CatalogTool import _mergedLocalRoles
 from Products.CMFCore.CatalogTool import CatalogTool as BaseTool
 from Products.CMFCore.permissions import AccessInactivePortalContent
 from Products.ZCatalog.ZCatalog import ZCatalog
+from Products.ZCatalog.Catalog import _deprecated
 from zope.component import queryMultiAdapter
 from zope.interface import Interface
 from zope.interface import implements
@@ -372,7 +373,7 @@ class CatalogTool(PloneBaseTool, BaseTool):
         self.reindexObject(object, idxs)
 
     security.declareProtected(ManageZCatalogEntries, 'catalog_object')
-    def catalog_object(self, object, uid=None, idxs=[],
+    def catalog_object(self, object, uid=_deprecated, idxs=[],
                        update_metadata=1, pghandler=None):
         self._increment_counter()
 
@@ -384,8 +385,9 @@ class CatalogTool(PloneBaseTool, BaseTool):
             if wrapper is not None:
                 w = wrapper
 
-        ZCatalog.catalog_object(self, w, uid, idxs,
-                                update_metadata, pghandler=pghandler)
+        ZCatalog.catalog_object(self, w, uid=uid, idxs=idxs,
+                                update_metadata=update_metadata,
+                                pghandler=pghandler)
 
     security.declareProtected(ManageZCatalogEntries, 'catalog_object')
     def uncatalog_object(self, *args, **kwargs):
