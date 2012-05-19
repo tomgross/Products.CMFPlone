@@ -40,6 +40,12 @@ Changelog
 - Remove calendar portlet kss
   [vangheem]
 
+- Add kss refresh portlet equivelant code
+  [vangheem]
+
+- Move deferred portlet rendering out of kss
+  [vangheem]
+
 
 4.2b3 (unreleased)
 ------------------
