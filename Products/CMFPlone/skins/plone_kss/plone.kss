@@ -162,10 +162,6 @@ a.kssCalendarChange:click {
 ** Form tabs
 */
 
-form.enableUnloadProtection:load {
-    evt-load-initial: false;
-    action-client: plone-initFormProtection;
-}
 
 form.enableUnlockProtection:load {
     evt-load-initial: false;
