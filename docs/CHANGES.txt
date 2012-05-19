@@ -34,6 +34,12 @@ Changelog
   on the first column.
   [mj]
 
+- Add kss-bbb.js for js that replaces kss
+  [vangheem]
+
+- Remove calendar portlet kss
+  [vangheem]
+
 
 4.2b3 (unreleased)
 ------------------
