@@ -23,11 +23,6 @@ ul.contentViews li a:plone-formProtectionChecked {
     action-client: plone-removeLockProtection;
 }
 
-#content:load {
-    evt-load-initial: false;
-    action-client: initializeCollapsible;
-}
-
 /*
 This loads the external links markers each time an element marked inlineEditable
 is reloaded (needed to make it work with inlineEditable). However, this isn't the best,
@@ -99,24 +94,6 @@ Content Menu Sections: Workflow State
     action-client: setStyle;
     setStyle-name: display;
     setStyle-value: none;
-}
-
-/*  Selector for the sharing page in plone.app.workflow.
-    the search_term parameters, puts the needed info into the request
- */
-
-#sharing-save-button:click {
-  evt-click-preventdefault: true;
-  action-server: updateSharingInfo;
-  updateSharingInfo-kssSubmitForm: currentForm();
-  updateSharingInfo-error: plone-submitCurrentForm;
-}
-
-#sharing-user-group-search:keyup {
-  evt-keyup-preventdefault: true;
-  evt-keyup-keycodes: 13;
-  action-server: updateSharingInfo;
-  updateSharingInfo-kssSubmitForm: currentForm();
 }
 
 /* Folder contents stuff */
