@@ -26,6 +26,7 @@
                 tal:attributes="action string:${context/@@plone_context_state/object_url}/${template/getId}">
 
             <input type="hidden" name="form.submitted" value="1"/>
+            <input type="hidden" tal:replace="structure context/@@authenticator/authenticator" />
 
             <tal:items define="availableTypes site_properties/default_page_types | python:[];
                                use_view_action site_properties/typesUseViewActionInListings|python:[];
