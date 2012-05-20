@@ -17,11 +17,13 @@ from Products.CMFCore.utils import getToolByName
 REQUEST = context.REQUEST
 response = REQUEST.response
 
-authenticator = context.restrictedTraverse('@@authenticator')
-if not authenticator.verify():
-    history_url = context.absolute_url() + '/content_status_history'
-    context.plone_utils.addPortalMessage(_(u'Support for URL workflow changes disabled.'), 'warning')
-    return response.redirect(history_url)
+if REQUEST.get('PUBLISHED') is script:
+    # authenticate when it is the published object
+    authenticator = context.restrictedTraverse('@@authenticator')
+    if not authenticator.verify():
+        history_url = context.absolute_url() + '/content_status_history'
+        context.plone_utils.addPortalMessage(_(u'Support for URL workflow changes disabled.'), 'warning')
+        return response.redirect(history_url)
 
 plone_utils = getToolByName(context, 'plone_utils')
 contentEditSuccess = 0

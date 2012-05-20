@@ -17,11 +17,13 @@ response = REQUEST.response
 response.setHeader('Expires', 'Sat, 01 Jan 2000 00:00:00 GMT')
 response.setHeader('Cache-Control', 'no-cache')
 
-authenticator = context.restrictedTraverse('@@authenticator')
-if not authenticator.verify():
-    context.plone_utils.addPortalMessage(_(u'Support for creating object with URL disabled.'), 'warning')
-    factories = context.absolute_url() + '/@@folder_factories'
-    return response.redirect(factories)
+if REQUEST.get('PUBLISHED') is script:
+    # authenticate when it is the published object
+    authenticator = context.restrictedTraverse('@@authenticator')
+    if not authenticator.verify():
+        context.plone_utils.addPortalMessage(_(u'Support for creating object with URL disabled.'), 'warning')
+        factories = context.absolute_url() + '/@@folder_factories'
+        return response.redirect(factories)
 
 if id is None:
     id = context.generateUniqueId(type_name)

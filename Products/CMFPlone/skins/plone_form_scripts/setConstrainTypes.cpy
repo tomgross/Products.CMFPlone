@@ -10,11 +10,14 @@
 from Products.CMFPlone import PloneMessageFactory as _
 #plone_log=context.plone_log
 
-authenticator = context.restrictedTraverse('@@authenticator')
-if not authenticator.verify():
-    factories = context.absolute_url() + '/folder_constraintypes_form'
-    return state.set(status='factory',
-        next_action='redirect_to:string:%s' % factories)
+if container.REQUEST.get('PUBLISHED') is script:
+    # authenticate when it is the published object
+    authenticator = context.restrictedTraverse('@@authenticator')
+    if not authenticator.verify():
+        context.plone_utils.addPortalMessage(_(u'CSRF protection activated.'), 'warning')
+        factories = context.absolute_url() + '/folder_constraintypes_form'
+        return state.set(status='factory',
+            next_action='redirect_to:string:%s' % factories)
 
 constrainTypesMode = context.REQUEST.get('constrainTypesMode', [])
 currentPrefer = context.REQUEST.get('currentPrefer', [])
