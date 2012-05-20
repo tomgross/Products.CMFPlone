@@ -9,20 +9,25 @@
 ##title=
 ##
 
-from DateTime import DateTime
 from Products.CMFPlone.utils import transaction_note
 from Products.CMFPlone import PloneMessageFactory as _
 from Products.CMFCore.utils import getToolByName
-REQUEST=context.REQUEST
+REQUEST = context.REQUEST
 response = REQUEST.response
 response.setHeader('Expires', 'Sat, 01 Jan 2000 00:00:00 GMT')
 response.setHeader('Cache-Control', 'no-cache')
 
+authenticator = context.restrictedTraverse('@@authenticator')
+if not authenticator.verify():
+    factories = context.absolute_url() + '/@@folder_factories'
+    return state.set(status='factory',
+        next_action='redirect_to:string:%s' % factories)
+
 if id is None:
-    id=context.generateUniqueId(type_name)
+    id = context.generateUniqueId(type_name)
 
 if type_name is None:
-    raise Exception, 'Type name not specified'
+    raise Exception('Type name not specified')
 
 types_tool = getToolByName(context, 'portal_types')
 
