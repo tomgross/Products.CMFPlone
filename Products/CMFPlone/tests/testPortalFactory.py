@@ -203,7 +203,11 @@ class TestCreateObjectByURL(PloneTestCase.FunctionalTestCase):
         # createObject script should make a temp object
         response = self.publish(self.folder_path +
                                 '/createObject?type_name=Document',
-                                self.basic_auth)
+                                self.basic_auth,
+                                request_method="POST",
+                                extra={
+                                    '_authenticator': self.getAuthCode()
+                                })
 
         self.assertEqual(response.getStatus(), 302) # Redirect to document_edit_form
 
@@ -216,14 +220,18 @@ class TestCreateObjectByURL(PloneTestCase.FunctionalTestCase):
         # Perform the redirect
         edit_form_path = location[len(self.app.REQUEST.SERVER_URL):]
         response = self.publish(edit_form_path, self.basic_auth)
-        self.assertEqual(response.getStatus(), 200) # OK
+        self.assertEqual(response.getStatus(), 200)  # OK
 
     def testCreateNonGloballyAllowedObject(self):
         # TempFolder allows to create all portal types
         self.portal.portal_types.Document.manage_changeProperties(global_allow=0)
         response = self.publish(self.folder_path +
                                 '/createObject?type_name=Document',
-                                self.basic_auth)
+                                self.basic_auth,
+                                request_method="POST",
+                                extra={
+                                    '_authenticator': self.getAuthCode()
+                                })
 
         self.assertEqual(response.getStatus(), 302) # Redirect to document_edit_form
 
@@ -251,13 +259,17 @@ class TestCreateObjectByURL(PloneTestCase.FunctionalTestCase):
         # And we are forbidden
         self.assertEqual(response.getStatus(), 401) # Unauthorized
 
-    def testUnauthorizedToViewEditFormOfNonFactoryObject(self):
+    def testRedirectToViewEditFormOfNonFactoryObject(self):
         # Anonymous should not be able to see newsitem_edit_form
         response = self.publish(self.folder_path +
                                 '/createObject?type_name=News%20Item',
-                                ) # No basic out info
+                                self.basic_auth,
+                                request_method="POST",
+                                extra={
+                                    '_authenticator': self.getAuthCode()
+                                })  # No basic out info
 
-        self.assertEqual(response.getStatus(), 401) # Unauthorized
+        self.assertEqual(response.getStatus(), 302)
 
     def testCreateObjectByDocumentEdit(self):
         # document_edit should create the real object
@@ -300,8 +312,11 @@ class TestPortalFactoryTraverseByURL(PloneTestCase.FunctionalTestCase):
         # setup a temp object
         response = self.publish(self.folder_path +
                                 '/createObject?type_name=Document',
-                                self.basic_auth
-                                )
+                                self.basic_auth,
+                                request_method="POST",
+                                extra={
+                                    '_authenticator': self.getAuthCode()
+                                })
         # We got redirected to the factory
         self.assertEqual(response.getStatus(), 302)
         newpath = response.getHeader('location')

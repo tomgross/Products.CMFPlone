@@ -19,9 +19,9 @@ response.setHeader('Cache-Control', 'no-cache')
 
 authenticator = context.restrictedTraverse('@@authenticator')
 if not authenticator.verify():
+    context.plone_utils.addPortalMessage(_(u'Support for creating object with URL disabled.'), 'warning')
     factories = context.absolute_url() + '/@@folder_factories'
-    return state.set(status='factory',
-        next_action='redirect_to:string:%s' % factories)
+    return response.redirect(factories)
 
 if id is None:
     id = context.generateUniqueId(type_name)
