@@ -8,6 +8,10 @@ Changelog
 4.3a1 (unreleased)
 ------------------
 
+- Replace folder_contents-related KSS with jQuery equivalents in kss-bbb.js
+  and support AJAX fetch of batched increments.
+  [cah190]
+
 - Ensure multiple tabbed forms on the same page work when number of
   tabs is greater than threshold.
   [davidjb]
