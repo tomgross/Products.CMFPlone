@@ -46,6 +46,9 @@ Changelog
 - Move deferred portlet rendering out of kss
   [vangheem]
 
+- Move sharing kss to js.
+  [vangheem]
+
 
 4.2b3 (unreleased)
 ------------------
