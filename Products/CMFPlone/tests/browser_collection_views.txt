@@ -38,9 +38,10 @@ Now let's login and visit the collection in the test browser:
     >>> browser.open('http://nohost/plone/folder/collection')
 
 
-Lets check the folder_listing (Standard view):
+Lets check the folder_listing (Standard view)--should be default:
 
-    >>> browser.getLink('Standard view').click()
+    >>> 'class="actionMenuSelected standard_view">' in browser.contents
+    True
     >>> collection_title in browser.contents
     True
     >>> collection_description in browser.contents
@@ -51,7 +52,7 @@ Lets check the folder_listing (Standard view):
 
 Lets check the folder_summary_view (Summary view):
 
-    >>> browser.getLink('Standard view').click()
+    >>> browser.getControl(name='plone-contentmenu-display-summary_view').click()
     >>> collection_title in browser.contents
     True
     >>> collection_description in browser.contents
@@ -62,7 +63,7 @@ Lets check the folder_summary_view (Summary view):
 
 Lets check the folder_full_view (All content):
 
-    >>> browser.getLink('All content').click()
+    >>> browser.getControl(name='plone-contentmenu-display-all_content').click()
     >>> collection_title in browser.contents
     True
     >>> collection_description in browser.contents
@@ -74,7 +75,7 @@ Lets check the folder_full_view (All content):
 Lets check the folder_tabular_view (Tabular view):
 
     >>> browser.handleErrors = False
-    >>> browser.getLink('Tabular view').click()
+    >>> browser.getControl(name='plone-contentmenu-display-tabular_view').click()
     >>> collection_title in browser.contents
     True
     >>> collection_description in browser.contents
@@ -88,7 +89,7 @@ are pragmatic here and only test on the default view of a folder
 - folder_contents:
 
     >>> browser.open('http://nohost/plone/folder')
-    >>> browser.getLink('Standard view').click()
+    >>> browser.getControl(name='plone-contentmenu-display-folder_listing').click()
     >>> 'Folder title' in browser.contents
     True
     >>> 'Folder description' in browser.contents
@@ -98,7 +99,7 @@ are pragmatic here and only test on the default view of a folder
 Lets ensure text is shown when Collection is default view of a folder
 
     >>> browser.open('http://nohost/plone/folder')
-    >>> browser.getLink('Select a content item as default view...').click()
+    >>> browser.getControl(name='plone-contentmenu-display-contextSetDefaultPage').click()
     >>> browser.getControl(name='objectId').value = ['collection']
     >>> browser.getControl('Save').click()
     >>> collection_title in browser.contents

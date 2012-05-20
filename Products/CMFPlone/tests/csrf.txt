@@ -265,7 +265,7 @@ Plone's "object actions" should also be protected.  Let's check renaming
 first:
 
   >>> browser.open('http://nohost/plone/')
-  >>> browser.getLink(url='createObject?type_name=Folder').click()
+  >>> browser.getControl(name='plone-contentmenu-factories-folder').click()
   >>> browser.getControl('Title').value = 'a folder'
   >>> browser.getControl('Save').click()
   >>> browser.url
@@ -277,7 +277,7 @@ Reopen URL to clean up HTTP_REFERRER
 
 Now rename
 
-  >>> browser.getLink('Rename').click()
+  >>> browser.getControl(name='plone-contentmenu-actions-rename').click()
   >>> browser.getControl(name='_authenticator').value = 'invalid!'
   >>> browser.getControl('New Short Name').value = 'folder'
   >>> browser.getControl('Rename All').click()
@@ -321,7 +321,7 @@ Now rename
 And finally removing the item again:
 
   >>> browser.getLink('View').click()
-  >>> browser.getLink('Delete').click()
+  >>> browser.getControl(name='plone-contentmenu-actions-delete').click()
   >>> browser.url
   'http://nohost/plone/folder/delete_confirmation'
   >>> browser.getControl(name='_authenticator').value = 'invalid!'
@@ -365,7 +365,7 @@ to check the removal of its content.  To check if everything's in place, we
 simply create an object and then delete it again via the "folder contents":
 
   >>> browser.open('http://nohost/plone/')
-  >>> browser.getLink(url='createObject?type_name=Document').click()
+  >>> browser.getControl(name='plone-contentmenu-factories-document').click()
   >>> browser.getControl('Title').value = 'a document'
   >>> browser.getControl('Save').click()
   >>> browser.url
@@ -373,7 +373,7 @@ simply create an object and then delete it again via the "folder contents":
 
   >>> browser.getLink('Home').click()
   >>> browser.getLink('Contents').click()
-  >>> browser.getControl(name='_authenticator').value = 'invalid!'
+  >>> browser.getControl(name='_authenticator', index=-1).value = 'invalid!'
   >>> browser.getControl('a document').selected = True
   >>> browser.getControl('Delete').click()
   Traceback (most recent call last):
@@ -394,7 +394,7 @@ Changing the workflow state of object, i.e. submitting and publishing them etc
 also needs to be protected.  Let's create a folder again to test this:
 
   >>> browser.open('http://nohost/plone/')
-  >>> browser.getLink(url='createObject?type_name=Folder').click()
+  >>> browser.getControl(name='plone-contentmenu-factories-folder').click()
   >>> browser.getControl('Title').value = 'another folder'
   >>> browser.getControl('Save').click()
   >>> browser.url
@@ -410,7 +410,7 @@ contain the authenticator token.  However, this a bad idea because the token
 could easily get "lost".  Changing the workflow state using the "Advanced"
 publishing process can be protected, though, so let's try this instead:
 
-  >>> browser.getLink('Advanced...').click()
+  >>> browser.getControl(name='plone-contentmenu-workflow-advanced').click()
   >>> browser.url
   'http://nohost/plone/another-folder/content_status_history'
   >>> browser.getControl('Publish').selected = True
@@ -418,7 +418,7 @@ publishing process can be protected, though, so let's try this instead:
   >>> browser.contents
   '...Info...Item state changed...'
 
-  >>> browser.getLink('Advanced...').click()
+  >>> browser.getControl(name='plone-contentmenu-workflow-advanced').click()
   >>> browser.getControl(name='_authenticator').value = 'invalid!'
   >>> browser.getControl('Retract').selected = True
   >>> browser.getControl('Save').click()

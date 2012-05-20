@@ -2,6 +2,15 @@
 # PloneTestCase
 #
 
+from zope.component import getUtility
+from plone.keyring.interfaces import IKeyManager
+import hmac
+
+try:
+    from hashlib import sha1 as sha
+except ImportError:
+    import sha
+
 from Products.PloneTestCase.ptc import *
 from Testing.testbrowser import Browser
 
@@ -23,6 +32,11 @@ class PloneTestCase(PloneTestCase):
     """This is a stub now, but in case you want to try
        something fancy on Your Branch (tm), put it here.
     """
+
+    def getAuthCode(self):
+        manager = getUtility(IKeyManager)
+        secret = manager.secret()
+        return hmac.new(secret, default_user, sha).hexdigest()
 
     def setRequestMethod(self, method):
         self.app.REQUEST.set('REQUEST_METHOD', method)
