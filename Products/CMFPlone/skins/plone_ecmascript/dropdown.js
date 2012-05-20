@@ -76,7 +76,7 @@ function initializeMenus() {
     hideAllMenus();
 
     // add toggle function to header links
-    jQuery('dl.actionMenu dt.actionMenuHeader a')
+    jQuery('dl.actionMenu dt.actionMenuHeader button,dl.actionMenu dt.actionMenuHeader a')
         .click(toggleMenuHandler)
         .mouseover(actionMenuMouseOver);
         
