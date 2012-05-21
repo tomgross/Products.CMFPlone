@@ -27,11 +27,29 @@
      interface="Products.ATContentTypes.interface.IATCTTool"
      object="portal_atct"/>
   <utility
+     interface="Products.CMFCore.interfaces.IActionsTool"
+     object="portal_actions"/>
+  <utility
      interface="Products.CMFActionIcons.interfaces.IActionIconsTool"
      object="portal_actionicons"/>
   <utility
+     interface="Products.CMFCore.interfaces.ICachingPolicyManager"
+     object="caching_policy_manager"/>
+  <utility
+     interface="Products.CMFCore.interfaces.ICatalogTool"
+     object="portal_catalog"/>
+  <utility
+     interface="Products.CMFCore.interfaces.IContentTypeRegistry"
+     object="content_type_registry"/>
+  <utility
      interface="Products.CMFCore.interfaces.IDiscussionTool"
      object="portal_discussion"/>
+  <utility
+     interface="Products.CMFCore.interfaces.IMemberDataTool"
+     object="portal_memberdata"/>
+  <utility
+     interface="Products.CMFCore.interfaces.IMembershipTool"
+     object="portal_membership"/>
   <utility
      interface="Products.CMFCore.interfaces.IMetadataTool"
      object="portal_metadata"/>
@@ -39,11 +57,26 @@
      interface="Products.CMFCore.interfaces.IPropertiesTool"
      object="portal_properties"/>
   <utility
+     interface="Products.CMFCore.interfaces.IRegistrationTool"
+     object="portal_registration"/>
+  <utility
      interface="Products.CMFCore.interfaces.ISiteRoot"
      object=""/>
   <utility
+     interface="Products.GenericSetup.interfaces.ISetupTool"
+     object="portal_setup"/>
+  <utility
+     interface="Products.CMFCore.interfaces.ISkinsTool"
+     object="portal_skins"/>
+  <utility
      interface="Products.CMFCore.interfaces.ISyndicationTool"
      object="portal_syndication"/>
+  <utility
+     interface="Products.CMFCore.interfaces.ITypesTool"
+     object="portal_types"/>
+  <utility
+     interface="Products.CMFCore.interfaces.IURLTool"
+     object="portal_url"/>
   <utility
      interface="Products.CMFCore.interfaces.IUndoTool"
      object="portal_undo"/>
@@ -53,6 +86,9 @@
   <utility
      interface="Products.CMFUid.interfaces.IUniqueIdGenerator"
      object="portal_uidgenerator"/>
+  <utility
+     interface="Products.CMFCore.interfaces.IWorkflowTool"
+     object="portal_workflow"/>
   <utility
      interface="Products.CMFDiffTool.interfaces.IDiffTool"
      object="portal_diff"/>
