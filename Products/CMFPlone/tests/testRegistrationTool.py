@@ -3,7 +3,7 @@ import unittest
 from email import message_from_string
 from zope.interface.verify import verifyClass
 from zope.component import getSiteManager
-from Products.CMFPlone.tests import PloneTestCase
+from plone.app.testing import PLONE_INTEGRATION_TESTING
 
 from AccessControl import Unauthorized
 from Products.CMFCore.permissions import AddPortalMember
@@ -38,9 +38,11 @@ class GenericRegistrationToolTests(unittest.TestCase):
         self.failUnless(len(rtool.generatePassword()) >= 5)
 
 
-class TestRegistrationTool(PloneTestCase.PloneTestCase):
+class TestRegistrationTool(unittest.TestCase):
+    layer = PLONE_INTEGRATION_TESTING
 
-    def afterSetUp(self):
+    def setUp(self):
+        self.portal = self.layer['portal']
         self.registration = self.portal.portal_registration
         self.portal.acl_users.userFolderAddUser("userid", "password",
                 (), (), ())
@@ -80,7 +82,7 @@ class TestRegistrationTool(PloneTestCase.PloneTestCase):
     def testJoinAsExistingMemberRaisesValueError(self):
         self.assertRaises(ValueError,
                           self.registration.addMember,
-                          PloneTestCase.default_user, 'secret',
+                          'test_user', 'secret',
                           properties={'username': 'Dr FooBar', 'email': 'foo@bar.com'})
 
     def testJoinAsExistingNonMemberUserRaisesValueError(self):
@@ -174,9 +176,11 @@ class TestRegistrationTool(PloneTestCase.PloneTestCase):
         self.failUnless('T=C3=A4st Porta' in msg.get_payload())
 
 
-class TestPasswordGeneration(PloneTestCase.PloneTestCase):
+class TestPasswordGeneration(unittest.TestCase):
+    layer = PLONE_INTEGRATION_TESTING
 
-    def afterSetUp(self):
+    def setUp(self):
+        self.portal = self.layer['portal']
         self.registration = self.portal.portal_registration
 
     def testMD5BaseAttribute(self):
@@ -214,7 +218,6 @@ class TestPasswordGeneration(PloneTestCase.PloneTestCase):
 
 
 class TestEmailValidityChecker(unittest.TestCase):
-
     check = lambda _, email: _checkEmail(email)
 
     def test_generic_tld(self):
@@ -234,6 +237,5 @@ class TestEmailValidityChecker(unittest.TestCase):
         self.assertTrue(*result)
 
 
-class TestRegistrationToolEmailValidityChecker(PloneTestCase.PloneTestCase):
-
+class TestRegistrationToolEmailValidityChecker(unittest.TestCase):
     check = lambda _, email: _.portal.portal_registration.isValidEmail(email)
