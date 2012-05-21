@@ -11,16 +11,19 @@ from Acquisition import aq_base, aq_chain
 from Products.CMFCore.interfaces import ISiteRoot
 
 from Products.CMFCore.utils import getToolByName
-from Products.CMFDefault.RegistrationTool import RegistrationTool as BaseTool
+from Products.CMFCore.RegistrationTool import RegistrationTool as BaseTool
 
+from AccessControl.requestmethod import postonly
 from Products.CMFCore.permissions import AddPortalMember
 
 from App.class_init import InitializeClass
 from AccessControl import ClassSecurityInfo, Unauthorized
 from Products.CMFPlone.PloneBaseTool import PloneBaseTool
 from Products.CMFPlone.PloneTool import EMAIL_RE
+from Products.CMFCore.utils import _checkPermission
 from Products.CMFDefault.utils import checkEmailAddress
 from Products.CMFDefault.exceptions import EmailAddressInvalid
+from Products.CMFDefault.permissions import ManagePortal
 
 from Products.PluggableAuthService.interfaces.authservice \
         import IPluggableAuthService
@@ -343,6 +346,60 @@ class RegistrationTool(PloneBaseTool, BaseTool):
                   immediate=True)
 
         return self.mail_password_response(self, self.REQUEST)
+
+    def _getValidEmailAddress(self, member):
+        email = member.getProperty('email')
+
+        # assert that we can actually get an email address, otherwise
+        # the template will be made with a blank To:, this is bad
+        if email is None:
+            msg = _(u'No email address is registered for member: '
+                    u'${member_id}', mapping={'member_id': member.getId()})
+            raise ValueError(msg)
+
+        checkEmailAddress(email)
+        return email
+
+    #
+    #   'portal_registration' interface
+    #
+    security.declarePublic('testPasswordValidity')
+    def testPasswordValidity(self, password, confirm=None):
+
+        """ Verify that the password satisfies the portal's requirements.
+
+        o If the password is valid, return None.
+        o If not, return a string explaining why.
+        """
+        if not password:
+            return _(u'You must enter a password.')
+
+        if len(password) < 5 and not _checkPermission(ManagePortal, self):
+            return _(u'Your password must contain at least 5 characters.')
+
+        if confirm is not None and confirm != password:
+            return _(u'Your password and confirmation did not match. '
+                     u'Please try again.')
+
+        return None
+
+    security.declareProtected(ManagePortal, 'editMember')
+    @postonly
+    def editMember(self, member_id, properties=None, password=None,
+                   roles=None, domains=None, REQUEST=None):
+        """ Edit a user's properties and security settings
+
+        o Checks should be done before this method is called using
+          testPropertiesValidity and testPasswordValidity
+        """
+        # XXX: this method violates the rules for tools/utilities:
+        # it depends on a non-utility tool
+        mtool = getToolByName(self, 'portal_membership')
+        member = mtool.getMemberById(member_id)
+        member.setMemberProperties(properties)
+        member.setSecurityProfile(password,roles,domains)
+
+        return member
 
 
 RegistrationTool.__doc__ = BaseTool.__doc__
