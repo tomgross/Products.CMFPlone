@@ -4,6 +4,7 @@ from zope.interface.verify import verifyClass
 from zope.component import getSiteManager
 from AccessControl import Unauthorized
 from Products.CMFCore.permissions import AddPortalMember
+from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.tests.utils import MockMailHost
 from plone.app.testing import (
     PLONE_INTEGRATION_TESTING,
@@ -87,7 +88,7 @@ Spam, spam, spam
 ##########
 
 
-class TestRegistrationTool(unittest.TestCase):
+class TestRegistrationTool(BaseRegistrationToolTestCase):
     layer = PLONE_INTEGRATION_TESTING
 
     def setUp(self):
@@ -96,6 +97,14 @@ class TestRegistrationTool(unittest.TestCase):
         self.portal.acl_users.userFolderAddUser("userid", "password",
                 (), (), ())
         self.portal.acl_users._doAddGroup("groupid", ())
+
+    def test_getToolByName_registration(self):
+        portal_registration = getToolByName(self.portal,
+                                            'portal_registration')
+        failure_msg = "portal_registration '%s' is not a '%s' type" \
+            % (type(portal_registration), self.klass)
+        self.assertTrue(isinstance(portal_registration, self.klass),
+                        failure_msg)
 
     def testJoinCreatesUser(self):
         self.registration.addMember(member_id, 'secret',
