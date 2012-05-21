@@ -281,15 +281,14 @@ Now rename
   >>> browser.getControl(name='_authenticator').value = 'invalid!'
   >>> browser.getControl('New Short Name').value = 'folder'
   >>> browser.getControl('Rename All').click()
-  Traceback (most recent call last):
-  ...
-  HTTPError: HTTP Error 403: Forbidden
+  >>> 'require_login' in browser.url
+  True
 
   >>> browser.goBack()
   >>> browser.getControl('New Short Name').value = 'folder'
   >>> browser.getControl('Rename All').click()
   >>> browser.url
-  'http://nohost/plone/folder/'
+  'http://nohost/plone/folder/@@folder_contents'
   >>> browser.contents
   '...Info...Renamed...a-folder...to...folder...'
 
@@ -326,9 +325,8 @@ And finally removing the item again:
   'http://nohost/plone/folder/delete_confirmation'
   >>> browser.getControl(name='_authenticator').value = 'invalid!'
   >>> browser.getControl('Delete').click()
-  Traceback (most recent call last):
-  ...
-  HTTPError: HTTP Error 403: Forbidden
+  >>> 'require_login' in browser.url
+  True
 
   >>> browser.goBack()
   >>> browser.getControl('Delete').click()
@@ -376,9 +374,8 @@ simply create an object and then delete it again via the "folder contents":
   >>> browser.getControl(name='_authenticator', index=-1).value = 'invalid!'
   >>> browser.getControl('a document').selected = True
   >>> browser.getControl('Delete').click()
-  Traceback (most recent call last):
-  ...
-  HTTPError: HTTP Error 403: Forbidden
+  >>> 'require_login' in browser.url
+  True
 
   >>> browser.goBack()
   >>> browser.getControl('a document').selected = True
