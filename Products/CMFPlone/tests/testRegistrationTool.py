@@ -17,12 +17,17 @@ from Products.CMFDefault.testing import FunctionalLayer
 
 
 member_id = 'new_member'
+_default_getMemberById = lambda s, id: None
 
 
-class FauxMembershipTool(Implicit):
 
-    def getMemberById(self, username):
-        return None
+def _create_membershiptool_class(_getMemberById=_default_getMemberById):
+
+    class FauxMembershipTool(Implicit):
+        getMemberById = _getMemberById
+
+    return FauxMembershipTool
+
 
 
 class BaseRegistrationToolTestCase(unittest.TestCase):
@@ -68,7 +73,8 @@ Subject:Hosed by Spam Cannon!
 Spam, spam, spam
 """
         rtool = self._makeOne().__of__(self.app)
-        self.app.portal_membership = FauxMembershipTool()
+        faux_membershiptool_class = _create_membershiptool_class()
+        self.app.portal_membership = faux_membershiptool_class()
         props = {'email': INJECTED_HEADERS,
                  'username': 'username',
                  }
