@@ -8,6 +8,9 @@ Changelog
 4.3a1 (unreleased)
 ------------------
 
+- Remove kss inline editing and kss decorator bits.
+  [cah190]
+
 - Replace folder_contents-related KSS with jQuery.
   [cah190]
 
