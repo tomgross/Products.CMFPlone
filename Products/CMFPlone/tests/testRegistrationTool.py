@@ -19,20 +19,30 @@ from Products.CMFDefault.testing import FunctionalLayer
 member_id = 'new_member'
 
 
-class GenericRegistrationToolTests(unittest.TestCase):
+class FauxMembershipTool(Implicit):
+
+    def getMemberById(self, username):
+        return None
+
+
+class BaseRegistrationToolTestCase(unittest.TestCase):
 
     @property
     def iface(self):
+        # XXX This interface needs moved into CMFPlone.
         from Products.CMFCore.interfaces import IRegistrationTool
         return IRegistrationTool
 
     @property
     def klass(self):
-        from Products.CMFCore.RegistrationTool import RegistrationTool
+        # XXX This class needs merged into the CMFPlone one.
+        from Products.CMFDefault.RegistrationTool import RegistrationTool
         return RegistrationTool
 
-    def _makeOne(self):
-        return self.klass()
+    def _makeOne(self, *args, **kw):
+        return self.klass(*args, **kw)
+
+class GenericRegistrationToolTests(BaseRegistrationToolTestCase):
 
     def test_interfaces(self):
         verifyClass(self.iface, self.klass)
@@ -42,32 +52,13 @@ class GenericRegistrationToolTests(unittest.TestCase):
         self.failUnless(len(rtool.generatePassword()) >= 5)
 
 
-class FauxMembershipTool(Implicit):
-
-    def getMemberById(self, username):
-        return None
-
-
-class RegistrationToolTests(RequestTest):
-
-    def _getTargetClass(self):
-        from Products.CMFDefault.RegistrationTool import RegistrationTool
-        return RegistrationTool
-
-    def _makeOne(self, *args, **kw):
-        return self._getTargetClass()(*args, **kw)
+class RegistrationToolTests(RequestTest, BaseRegistrationToolTestCase):
 
     def tearDown(self):
         cleanUp()
         RequestTest.tearDown(self)
 
-    def test_interfaces(self):
-        from Products.CMFCore.interfaces import IRegistrationTool
-
-        verifyClass(IRegistrationTool, self._getTargetClass())
-
-    def test_spamcannon_collector_243( self ):
-
+    def test_spamcannon_collector_243(self):
         INJECTED_HEADERS = """
 To:someone@example.com
 cc:another_victim@elsewhere.example.com
@@ -76,18 +67,13 @@ Subject:Hosed by Spam Cannon!
 
 Spam, spam, spam
 """
-
         rtool = self._makeOne().__of__(self.app)
         self.app.portal_membership = FauxMembershipTool()
-
-        props = { 'email' : INJECTED_HEADERS
-                , 'username' : 'username'
-                }
-
+        props = {'email': INJECTED_HEADERS,
+                 'username': 'username',
+                 }
         result = rtool.testPropertiesValidity(props, None)
-
-        self.failIf( result is None, 'Invalid e-mail passed inspection' )
-
+        self.failIf(result is None, 'Invalid e-mail passed inspection')
 
 
 ##########
