@@ -8,11 +8,8 @@ from plone.app.testing import PLONE_INTEGRATION_TESTING
 from AccessControl import Unauthorized
 from Products.CMFCore.permissions import AddPortalMember
 from Products.CMFPlone.tests.utils import MockMailHost
-from Products.MailHost.interfaces import IMailHost
-from Products.CMFPlone.RegistrationTool import _checkEmail
 
 member_id = 'new_member'
-
 
 
 class GenericRegistrationToolTests(unittest.TestCase):
@@ -125,6 +122,7 @@ class TestRegistrationTool(unittest.TestCase):
         # First install a fake mailhost utility
         mails = self.portal.MailHost = MockMailHost('MailHost')
         sm = getSiteManager(self.portal)
+        from Products.MailHost.interfaces import IMailHost
         sm.unregisterUtility(provided=IMailHost)
         sm.registerUtility(mails, IMailHost)
         # Register a user
@@ -152,6 +150,7 @@ class TestRegistrationTool(unittest.TestCase):
         # First install a fake mailhost utility
         mails = self.portal.MailHost = MockMailHost('MailHost')
         sm = getSiteManager(self.portal)
+        from Products.MailHost.interfaces import IMailHost
         sm.unregisterUtility(provided=IMailHost)
         sm.registerUtility(mails, IMailHost)
         # Register a user
@@ -218,7 +217,10 @@ class TestPasswordGeneration(unittest.TestCase):
 
 
 class TestEmailValidityChecker(unittest.TestCase):
-    check = lambda _, email: _checkEmail(email)
+
+    def check(self, email):
+        from Products.CMFPlone.RegistrationTool import _checkEmail
+        return _checkEmail(email)
 
     def test_generic_tld(self):
         result = self.check("webmaster@example.org")
