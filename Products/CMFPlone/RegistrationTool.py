@@ -17,7 +17,7 @@ from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.utils import UniqueObject
 from Products.CMFCore.utils import _dtmldir  # XXX Move to here
 from Products.CMFCore.utils import _limitGrantedRoles
-from Products.CMFCore.interfaces import IRegistrationTool
+from Products.CMFCore.utils import _checkPermission
 
 from AccessControl.requestmethod import postonly
 from Products.CMFCore.permissions import AddPortalMember
@@ -26,15 +26,16 @@ from Products.CMFCore.permissions import ManagePortal
 
 from App.class_init import InitializeClass
 from AccessControl import ClassSecurityInfo, Unauthorized
-from Products.CMFPlone.PloneBaseTool import PloneBaseTool
-from Products.CMFPlone.PloneTool import EMAIL_RE
-from Products.CMFCore.utils import _checkPermission
 from Products.CMFDefault.utils import checkEmailAddress
 from Products.CMFDefault.exceptions import EmailAddressInvalid
 from Products.CMFDefault.permissions import ManagePortal
 
 from Products.PluggableAuthService.interfaces.authservice \
         import IPluggableAuthService
+
+from Products.CMFPlone.interfaces import IRegistrationTool
+from Products.CMFPlone.PloneBaseTool import PloneBaseTool
+from Products.CMFPlone.PloneTool import EMAIL_RE
 
 # - remove '1', 'l', and 'I' to avoid confusion
 # - remove '0', 'O', and 'Q' to avoid confusion

@@ -20,6 +20,7 @@ from factory import IFactoryTool
 from translationservice import ITranslationServiceTool
 from breadcrumbs import IHideFromBreadcrumbs
 from workflow import IWorkflowChain
+from tools import IRegistrationTool
 
 import zope.deferredimport
 

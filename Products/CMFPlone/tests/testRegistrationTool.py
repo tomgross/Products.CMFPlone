@@ -5,7 +5,10 @@ from zope.component import getSiteManager
 from AccessControl import Unauthorized
 from Products.CMFCore.permissions import AddPortalMember
 from Products.CMFPlone.tests.utils import MockMailHost
-from plone.app.testing import PLONE_INTEGRATION_TESTING
+from plone.app.testing import (
+    PLONE_INTEGRATION_TESTING,
+    PLONE_FUNCTIONAL_TESTING,
+    )
 
 ################################
 from Testing import ZopeTestCase
@@ -34,14 +37,12 @@ class BaseRegistrationToolTestCase(unittest.TestCase):
 
     @property
     def iface(self):
-        # XXX This interface needs moved into CMFPlone.
-        from Products.CMFCore.interfaces import IRegistrationTool
+        from Products.CMFPlone.interfaces import IRegistrationTool
         return IRegistrationTool
 
     @property
     def klass(self):
-        # XXX This class needs merged into the CMFPlone one.
-        from Products.CMFDefault.RegistrationTool import RegistrationTool
+        from Products.CMFPlone.RegistrationTool import RegistrationTool
         return RegistrationTool
 
     def _makeOne(self, *args, **kw):
@@ -57,11 +58,8 @@ class GenericRegistrationToolTests(BaseRegistrationToolTestCase):
         self.failUnless(len(rtool.generatePassword()) >= 5)
 
 
-class RegistrationToolTests(RequestTest, BaseRegistrationToolTestCase):
-
-    def tearDown(self):
-        cleanUp()
-        RequestTest.tearDown(self)
+class RegistrationToolTests(BaseRegistrationToolTestCase):
+    layer = PLONE_FUNCTIONAL_TESTING
 
     def test_spamcannon_collector_243(self):
         INJECTED_HEADERS = """
@@ -72,9 +70,10 @@ Subject:Hosed by Spam Cannon!
 
 Spam, spam, spam
 """
-        rtool = self._makeOne().__of__(self.app)
+        app = self.layer['app']
+        rtool = self._makeOne().__of__(app)
         faux_membershiptool_class = _create_membershiptool_class()
-        self.app.portal_membership = faux_membershiptool_class()
+        app.portal_membership = faux_membershiptool_class()
         props = {'email': INJECTED_HEADERS,
                  'username': 'username',
                  }
