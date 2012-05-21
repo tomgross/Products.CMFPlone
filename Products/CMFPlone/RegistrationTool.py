@@ -4,17 +4,25 @@ from hashlib import md5
 from email import message_from_string
 from smtplib import SMTPRecipientsRefused
 
+from zope.interface import implements
 from zope.component import getUtility
 from zope.i18nmessageid import MessageFactory
 
 from Acquisition import aq_base, aq_chain
+from OFS.SimpleItem import SimpleItem
+from App.special_dtml import DTMLFile
 from Products.CMFCore.interfaces import ISiteRoot
 
 from Products.CMFCore.utils import getToolByName
-from Products.CMFCore.RegistrationTool import RegistrationTool as BaseTool
+from Products.CMFCore.utils import UniqueObject
+from Products.CMFCore.utils import _dtmldir  # XXX Move to here
+from Products.CMFCore.utils import _limitGrantedRoles
+from Products.CMFCore.interfaces import IRegistrationTool
 
 from AccessControl.requestmethod import postonly
 from Products.CMFCore.permissions import AddPortalMember
+from Products.CMFCore.permissions import MailForgottenPassword
+from Products.CMFCore.permissions import ManagePortal
 
 from App.class_init import InitializeClass
 from AccessControl import ClassSecurityInfo, Unauthorized
@@ -84,20 +92,31 @@ def get_member_by_login_name(context, login_name, raise_exceptions=True):
 random.seed()
 
 
-class RegistrationTool(PloneBaseTool, BaseTool):
+class RegistrationTool(PloneBaseTool, UniqueObject, SimpleItem):
+    """Create and modify users by making calls to portal_membership."""
+    implements(IRegistrationTool)
 
+    id = 'portal_registration'
     meta_type = 'Plone Registration Tool'
     security = ClassSecurityInfo()
     toolicon = 'skins/plone_images/pencil_icon.png'
     plone_tool = 1
     md5key = None
     _v_md5base = None
+    member_id_pattern = ''
     default_member_id_pattern = r'^\w[\w\.\-@]+\w$'
     _ALLOWED_MEMBER_ID_PATTERN = re.compile(default_member_id_pattern)
 
+    manage_options = ( ({'label': 'Overview',
+                         'action': 'manage_overview'},
+                        {'label': 'Configure',
+                         'action': 'manage_configuration'})
+                     + SimpleItem.manage_options
+                     )
+
     def __init__(self):
-        if hasattr(BaseTool, '__init__'):
-            BaseTool.__init__(self)
+        if hasattr(SimpleItem, '__init__'):
+            SimpleItem.__init__(self)
         # build and persist an MD5 key
         self.md5key = ''
         for i in range(0, 20):
@@ -107,6 +126,42 @@ class RegistrationTool(PloneBaseTool, BaseTool):
         if self._v_md5base is None:
             self._v_md5base = md5(self.md5key)
         return self._v_md5base
+
+    #
+    #   ZMI methods
+    #
+    security.declareProtected(ManagePortal, 'manage_overview')
+    manage_overview = DTMLFile( 'explainRegistrationTool', _dtmldir )
+
+    security.declareProtected(ManagePortal, 'manage_configuration')
+    manage_configuration = DTMLFile('configureRegistrationTool', _dtmldir)
+
+    security.declareProtected(ManagePortal, 'manage_editIDPattern')
+    def manage_editIDPattern(self, pattern, REQUEST=None):
+        """Edit the allowable member ID pattern TTW"""
+        pattern.strip()
+
+        if len(pattern) > 0:
+            self.member_id_pattern = pattern
+            self._ALLOWED_MEMBER_ID_PATTERN = re.compile(pattern)
+        else:
+            self.member_id_pattern = ''
+            self._ALLOWED_MEMBER_ID_PATTERN = re.compile(
+                                                self.default_member_id_pattern)
+
+        if REQUEST is not None:
+            msg = 'Member ID Pattern changed'
+            return self.manage_configuration(manage_tabs_message=msg)
+
+    security.declareProtected(ManagePortal, 'getIDPattern')
+    def getIDPattern(self):
+        """ Return the currently-used member ID pattern """
+        return self.member_id_pattern
+
+    security.declareProtected(ManagePortal, 'getDefaultIDPattern')
+    def getDefaultIDPattern(self):
+        """ Return the currently-used member ID pattern """
+        return self.default_member_id_pattern
 
     # Get a password of the prescribed length
     #
@@ -383,6 +438,55 @@ class RegistrationTool(PloneBaseTool, BaseTool):
 
         return None
 
+    #
+    #   'portal_registration' interface methods
+    #
+    security.declarePublic('isRegistrationAllowed')
+    def isRegistrationAllowed(self, REQUEST):
+        '''Returns a boolean value indicating whether the user
+        is allowed to add a member to the portal.
+        '''
+        return _checkPermission(AddPortalMember, self.aq_inner.aq_parent)
+
+    security.declareProtected(AddPortalMember, 'addMember')
+    @postonly
+    def addMember(self, id, password, roles=('Member',), domains='',
+                  properties=None, REQUEST=None):
+        '''Creates a PortalMember and returns it. The properties argument
+        can be a mapping with additional member properties. Raises an
+        exception if the given id already exists, the password does not
+        comply with the policy in effect, or the authenticated user is not
+        allowed to grant one of the roles listed (where Member is a special
+        role that can always be granted); these conditions should be
+        detected before the fact so that a cleaner message can be printed.
+        '''
+        # XXX: this method violates the rules for tools/utilities:
+        # it depends on a non-utility tool
+        if not self.isMemberIdAllowed(id):
+            raise ValueError(_(u'The login name you selected is already in '
+                               u'use or is not valid. Please choose another.'))
+
+        failMessage = self.testPasswordValidity(password)
+        if failMessage is not None:
+            raise ValueError(failMessage)
+
+        if properties is not None:
+            failMessage = self.testPropertiesValidity(properties)
+            if failMessage is not None:
+                raise ValueError(failMessage)
+
+        # Limit the granted roles.
+        # Anyone is always allowed to grant the 'Member' role.
+        _limitGrantedRoles(roles, self, ('Member',))
+
+        membership = getToolByName(self, 'portal_membership')
+        membership.addMember(id, password, roles, domains, properties)
+
+        member = membership.getMemberById(id)
+        self.afterAdd(member, id, password, properties)
+        return member
+
+
     security.declareProtected(ManagePortal, 'editMember')
     @postonly
     def editMember(self, member_id, properties=None, password=None,
@@ -401,8 +505,12 @@ class RegistrationTool(PloneBaseTool, BaseTool):
 
         return member
 
+    security.declarePublic('afterAdd')
+    def afterAdd(self, member, id, password, properties):
+        '''Called by portal_registration.addMember()
+        after a member has been added successfully.'''
+        pass
 
-RegistrationTool.__doc__ = BaseTool.__doc__
 
 InitializeClass(RegistrationTool)
 
