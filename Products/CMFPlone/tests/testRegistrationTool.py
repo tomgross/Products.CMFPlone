@@ -12,6 +12,26 @@ from Products.CMFPlone.RegistrationTool import _checkEmail
 
 member_id = 'new_member'
 
+from zope.interface.verify import verifyClass
+
+
+class GenericRegistrationToolTests(unittest.TestCase):
+
+    def _makeOne(self):
+        from Products.CMFCore.RegistrationTool import RegistrationTool
+
+        return RegistrationTool()
+
+    def test_interfaces(self):
+        from Products.CMFCore.interfaces import IRegistrationTool
+        from Products.CMFCore.RegistrationTool import RegistrationTool
+
+        verifyClass(IRegistrationTool, RegistrationTool)
+
+    def test_generatePassword(self):
+        rtool = self._makeOne()
+        self.failUnless( len( rtool.generatePassword() ) >= 5 )
+
 
 class TestRegistrationTool(PloneTestCase.PloneTestCase):
 
