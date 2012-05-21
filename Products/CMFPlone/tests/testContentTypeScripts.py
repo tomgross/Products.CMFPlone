@@ -138,16 +138,6 @@ class TestContentTypeScripts(PloneTestCase.PloneTestCase):
         tool.listMetaTags(doc)
         # TODO: atm it checks only of the script can be called w/o an error
 
-    def testObjectDeleteFailsOnGET(self):
-        self.assertRaises(Unauthorized, self.folder.object_delete,)
-
-    def testObjectDelete(self):
-        self.folder.invokeFactory('Document', id='doc')
-        self.setupAuthenticator()
-        self.setRequestMethod('POST')
-        self.folder.doc.object_delete()
-        self.failIf('doc' in self.folder)
-
 
 class TestEditShortName(PloneTestCase.PloneTestCase):
     # Test fix for http://dev.plone.org/plone/ticket/2246

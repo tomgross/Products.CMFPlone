@@ -129,7 +129,7 @@ jQuery(function($){
     // );
 
     // Delete dialog
-    $('dl#plone-contentmenu-actions a#delete').prepOverlay(
+    $('dl#plone-contentmenu-actions #delete').prepOverlay(
         {
             subtype: 'ajax',
             filter: common_content_filter,
@@ -142,7 +142,7 @@ jQuery(function($){
     );
 
     // Rename dialog
-    $('dl#plone-contentmenu-actions a#rename').prepOverlay(
+    $('dl#plone-contentmenu-actions #rename').prepOverlay(
         {
             subtype: 'ajax',
             filter: common_content_filter,
