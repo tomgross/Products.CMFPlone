@@ -9,6 +9,9 @@
 ##title=Publish objects from a folder
 ##
 
+if container.REQUEST.get('PUBLISHED') is script:
+   raise Forbidden('Script may not be published.')
+
 from ZODB.POSException import ConflictError
 from Products.CMFPlone.utils import transaction_note
 from Products.CMFPlone import PloneMessageFactory as _

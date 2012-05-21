@@ -130,6 +130,7 @@ Cut and paste Document
 We'll first cut our Document. Then we'll create folder where we paste
 the Document into.
 
+    >>> import pdb; pdb.set_trace()
     >>> browser.getControl(name='plone-contentmenu-actions').click()
 
 First off, we'll cut our document:

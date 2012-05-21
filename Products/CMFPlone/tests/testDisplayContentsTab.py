@@ -1,3 +1,4 @@
+from zope.component import getMultiAdapter
 from Products.CMFPlone.tests import PloneTestCase
 
 from Products.CMFCore.permissions import ListFolderContents
@@ -27,11 +28,13 @@ class TestDisplayContentsTab(PloneTestCase.PloneTestCase):
         self.folder.foo.invokeFactory('Document', id='doc1')
         self.folder.foo.invokeFactory('Folder', id='folder1')
         folder_path = '/'.join(self.folder.foo.folder1.getPhysicalPath())
-        transaction.savepoint(optimistic=True) # make rename work
+        transaction.savepoint(optimistic=True)  # make rename work
         # Make the folder the default page
         self.setupAuthenticator()
         self.setRequestMethod('POST')
-        self.folder.folder_rename(paths=[folder_path], new_ids=['index_html'], new_titles=['Default Folderish Document'])
+        req = self.app.REQUEST
+        view = getMultiAdapter((self.folder, req), name="folder_rename")
+        view([folder_path], ['index_html'], ['Default Folderish Document'])
         self.setRequestMethod('GET')
 
     def getModificationPermissions(self):
