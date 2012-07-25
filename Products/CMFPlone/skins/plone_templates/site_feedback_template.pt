@@ -10,6 +10,10 @@
 ><span tal:omit-tag="" tal:content="options/message | nothing" />
 
 --
+<tal:cond
+    define="came_from options/came_from|nothing"
+    condition="came_from" i18n:translate="site_feedback_mailtemplate_url">URL: <tal:came_from i18n:name="came_from" replace="came_from"/>
+</tal:cond>
 <span tal:replace="portal/email_from_name" />
 
 <div i18n:translate="site_feedback_mailtemplate_body" tal:omit-tag="">

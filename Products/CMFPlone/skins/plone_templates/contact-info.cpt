@@ -50,6 +50,10 @@
                                   fullname python:request.get('fullname', not isAnon and member.getProperty('fullname', '') or None);
                                   email python:request.get('email', not isAnon and member.getProperty('email','') or None);">
 
+                <input type="hidden" name="came_from" value=""
+                       tal:define="came_from request/came_from|request/HTTP_REFERER|default"
+                       tal:attributes="value came_from" />
+
                 <input type="hidden" name="sender_fullname" value="fullname"
                        tal:attributes="value fullname"
                        tal:condition="fullname" />

@@ -29,6 +29,7 @@ subject = REQUEST.get('subject', '')
 message = REQUEST.get('message', '')
 sender_from_address = REQUEST.get('sender_from_address', '')
 sender_fullname = REQUEST.get('sender_fullname', '')
+came_from = REQUEST.get('came_from', '')
 
 send_to_address = portal.getProperty('email_from_address')
 envelope_from = portal.getProperty('email_from_address')
@@ -42,7 +43,8 @@ variables = {'sender_from_address' : sender_from_address,
              'sender_fullname'     : sender_fullname,
              'url'                 : url,
              'subject'             : subject,
-             'message'             : message
+             'message'             : message,
+             'came_from'           : came_from
              }
 
 try:
